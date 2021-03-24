@@ -9,10 +9,16 @@ from Bala import *
 tiempo_anterior = 0
 
 carrito = Carrito()
-obstaculo = Obstaculo(0.4, 0.6)
-segundoObstaculo = Obstaculo(-0.5, 0.3)
 
-def actualizar(window):
+obstaculos = []
+
+def iniciaizarObstaculos():
+    global obstaculos
+    obstaculos.append(Obstaculo(0.4, 0.6))
+    obstaculos.append(Obstaculo(-0.5, 0.3))
+    obstaculos.append(Obstaculo(0.5, -0.1))
+    
+    def actualizar(window):
     global tiempo_anterior
     global carrito
     
@@ -22,18 +28,19 @@ def actualizar(window):
 
     carrito.actualizar(window, tiempo_delta)
 
-    carrito.checar_colisiones(obstaculo)
-    if not carrito.colisionando:
-        carrito.checar_colisiones(segundoObstaculo)
+    for obstaculo in obstaculos:
+        if obstaculo.vivo:
+            carrito.checar_colisiones(obstaculo)
+            if carrito.colisionando:
+                break
     tiempo_anterior = tiempo_actual
 
 def dibujar():
     global carrito
-    global obstaculo
-    global segundoObstaculo
+    global obstaculos
     #rutinadibujo
-    obstaculo.dibujar()
-    segundoObstaculo.dibujar()
+    for obstaculo in obstaculos:
+        obstaculo.dibujar()
     carrito.dibujar()
 
 
@@ -54,10 +61,7 @@ def main():
     # independientemente del SO que usemos
     window = glfw.create_window(800, 800, "Mi ventana", None, None)
 
-    # Configuramos OpenGL
-    glfw.window_hint(glfw.SAMPLES, 4)
-    glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
-    glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
+    
     glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
     glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 
@@ -86,6 +90,8 @@ def main():
 
     glfw.set_key_callback(window, key_callback)
 
+    inicializarObstaculos()
+    
     while not glfw.window_should_close(window):
         # Establece regiond e dibujo
         glViewport(0, 0, 800, 800)
